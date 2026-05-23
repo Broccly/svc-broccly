@@ -1,4 +1,38 @@
 const User = require('../models/user.model')
+const jwt = require('jsonwebtoken')
+
+const JWT_SECRET = process.env.JWT_SECRET || 'broccly-dev-secret'
+const ACCESS_TTL = 60 * 60        // 1 hour
+const REFRESH_TTL = 7 * 24 * 3600 // 7 days
+
+exports.verifyGoogleToken = async (googleToken) => {
+  const response = await fetch(
+    `https://www.googleapis.com/oauth2/v3/userinfo`,
+    { headers: { Authorization: `Bearer ${googleToken}` } }
+  )
+  if (!response.ok) throw new Error('Invalid Google token')
+
+  const { email, name, sub: googleId } = await response.json()
+
+  let user = await User.findOne({ email })
+  if (!user) {
+    user = await User.create({
+      name,
+      email,
+      password: 'google-oauth',
+      googleId,
+      follower: 0,
+      following: 0,
+    })
+  }
+
+  const payload = { sub: user._id.toString(), role: user.role || 'user' }
+  const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_TTL })
+  const refreshToken = jwt.sign({ sub: payload.sub }, JWT_SECRET, { expiresIn: REFRESH_TTL })
+
+  return { accessToken, refreshToken }
+}
+
 exports.createAccount = async (data) => {
   console.log('reached at auth service')
   console.log(data)
