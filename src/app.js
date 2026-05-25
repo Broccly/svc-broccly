@@ -11,6 +11,10 @@ const userRouter = require('./routes/user.routes')
 app.use(cors({ origin: process.env.UI_URL || 'http://localhost:3000', credentials: true }))
 app.use(express.json())
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' })
+})
+
 app.use('/api/auth', authRouter)
 app.use('/api/post', postRouter)
 app.use('/api/like', likRouter)
