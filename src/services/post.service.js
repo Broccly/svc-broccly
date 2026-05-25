@@ -29,8 +29,15 @@ exports.deletePost = async(data) => {
   return result
 }
 
-exports.getAllPosts = async () => {
-  const posts = await Post.find()
+exports.getPostById = async (id) => {
+  const post = await Post.findById(id)
+  if (!post) throw new Error("Post not found")
+  return post
+}
+
+exports.getAllPosts = async ({ author } = {}) => {
+  const query = author ? { author } : {};
+  const posts = await Post.find(query)
   return posts
 }
 

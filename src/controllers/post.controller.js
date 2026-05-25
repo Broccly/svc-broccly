@@ -1,8 +1,17 @@
 const postService = require('../services/post.service')
 
-exports.getAllPosts = async (_req, res) => {
+exports.getPostById = async (req, res) => {
   try {
-    const posts = await postService.getAllPosts()
+    const post = await postService.getPostById(req.params.id)
+    res.status(200).json({ post })
+  } catch (err) {
+    res.status(404).json({ error: err.message })
+  }
+}
+
+exports.getAllPosts = async (req, res) => {
+  try {
+    const posts = await postService.getAllPosts({ author: req.query.author })
     res.status(200).json({ posts })
   } catch (err) {
     res.status(400).json({ error: err.message })
