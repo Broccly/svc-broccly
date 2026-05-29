@@ -19,6 +19,7 @@ exports.verifyGoogleToken = async (googleToken) => {
     user = await User.create({
       name,
       email,
+      bio: 'user bio',
       password: 'google-oauth',
       googleId,
       follower: 0,
