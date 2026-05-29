@@ -3,7 +3,7 @@ const express = require('express')
 const router = express.Router()
 
 
-router.post('/create', FollowController.Follow)
-router.delete('/:id', FollowController.Unfollow)
+router.post('/create', isAuthenticated, FollowController.Follow)
+router.delete('/:id', isAuthenticated, FollowController.Unfollow)
 
 module.exports = router;

@@ -6,6 +6,6 @@ const authController = require('../controllers/auth.controller')
 router.post('/token', authController.verifyGoogleToken)
 
 router.post('/register', authController.createAccount)
-router.delete('/:id', authController.deleteAccount)
+router.delete('/:id', isAuthenticated, authController.deleteAccount)
 
 module.exports = router
