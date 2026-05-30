@@ -1,4 +1,5 @@
 const Post = require('../models/post.model')
+const User = require('../models/user.model')
 
 exports.createPost = async (data) => {
   const {title, body, author } = data;
@@ -32,13 +33,26 @@ exports.deletePost = async(data) => {
 exports.getPostById = async (id) => {
   const post = await Post.findById(id)
   if (!post) throw new Error("Post not found")
-  return post
+  const postObj = post.toObject()
+  const user = await User.findById(postObj.author).select('name avatarUrl')
+  postObj.authorName = user ? user.name : postObj.author
+  postObj.authorAvatarUrl = user ? user.avatarUrl : null
+  return postObj
 }
 
 exports.getAllPosts = async ({ author } = {}) => {
   const query = author ? { author } : {};
   const posts = await Post.find(query)
-  return posts
+  const authorIds = [...new Set(posts.map(p => p.author))]
+  const users = await User.find({ _id: { $in: authorIds } }).select('name avatarUrl')
+  const userMap = Object.fromEntries(users.map(u => [u._id.toString(), u]))
+  return posts.map(p => {
+    const obj = p.toObject()
+    const u = userMap[obj.author]
+    obj.authorName = u ? u.name : obj.author
+    obj.authorAvatarUrl = u ? u.avatarUrl : null
+    return obj
+  })
 }
 
 exports.updatePost = async(data) => {

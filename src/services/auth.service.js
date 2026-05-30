@@ -12,7 +12,7 @@ exports.verifyGoogleToken = async (googleToken) => {
   )
   if (!response.ok) throw new Error('Invalid Google token')
 
-  const { email, name, sub: googleId } = await response.json()
+  const { email, name, picture, sub: googleId } = await response.json()
 
   let user = await User.findOne({ email })
   if (!user) {
@@ -21,10 +21,13 @@ exports.verifyGoogleToken = async (googleToken) => {
       email,
       bio: 'user bio',
       password: 'google-oauth',
-      googleId,
       follower: 0,
       following: 0,
+      avatarUrl: picture ?? null,
     })
+  } else if (user.avatarUrl !== picture) {
+    user.avatarUrl = picture ?? null
+    await user.save()
   }
 
   const payload = { sub: user._id.toString(), role: user.role || 'user' }

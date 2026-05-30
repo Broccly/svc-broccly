@@ -15,6 +15,12 @@ exports.Follow = async (data) => {
   return result;
 }
 
+exports.CheckFollow = async ({ follower, following_to }) => {
+  if (!follower || !following_to) throw new Error("All data are required");
+  const record = await Follow.findOne({ follower, following_to });
+  return record ? { following: true, followId: record._id.toString() } : { following: false, followId: null };
+}
+
 exports.Unfollow = async (data) => {
   const { id } = data;
 

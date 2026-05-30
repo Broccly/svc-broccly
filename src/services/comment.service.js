@@ -1,5 +1,6 @@
 const Comment = require('../models/comment.model')
 const Post = require('../models/post.model')
+const User = require('../models/user.model')
 
 exports.createComment = async(data) => {
   const { post, author, text } = data
@@ -28,6 +29,18 @@ exports.deleteComment = async(data) => {
   }
   const result = await Comment.deleteOne({_id: id})
   return result;
+}
+
+exports.getByPost = async(postId) => {
+  if(!postId) throw new Error("Post ID is required");
+  const comments = await Comment.find({ post: postId }).sort({ updated_at: -1 });
+  const authorIds = [...new Set(comments.map(c => c.author))];
+  const users = await User.find({ _id: { $in: authorIds } }).select('name avatarUrl');
+  const userMap = Object.fromEntries(users.map(u => [u._id.toString(), u]));
+  return comments.map(c => {
+    const u = userMap[c.author];
+    return { ...c.toObject(), authorName: u ? u.name : c.author, authorAvatarUrl: u ? u.avatarUrl : null };
+  });
 }
 
 exports.updateComment = async(data) => {

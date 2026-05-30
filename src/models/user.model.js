@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  avatarUrl: {
+    type: String,
+    required: false,
+    default: null
+  },
   follower: {
     type: Number,
     default: 0

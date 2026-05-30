@@ -13,6 +13,15 @@ exports.createComment = async (req, res) => {
   }
 }
 
+exports.getByPost = async (req, res) => {
+  try {
+    const comments = await commentService.getByPost(req.params.postId);
+    res.status(200).json({ comments });
+  } catch(err) {
+    res.status(400).json({ error: err.message });
+  }
+}
+
 exports.deleteComment = async (req, res) => {
   try{
     const {id} = await req.params;
